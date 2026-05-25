@@ -59,12 +59,12 @@ async function fetchCSV(sid,gid){
   const url="https://docs.google.com/spreadsheets/d/"+sid+"/export?format=csv&gid="+gid;
   // Try corsproxy.io first
   try{
-    const r=await fetch("/api/proxy?url="+encodeURIComponent(url),{signal:AbortSignal.timeout(8000)});
+    const r=await fetch("https://corsproxy.io/?"+encodeURIComponent(url),{signal:AbortSignal.timeout(8000)});
     if(r.ok) return await r.text();
   }catch(e){}
   // Fallback to direct (might work via Vercel)
   try{
-    const r=await fetch("/api/proxy?url="+encodeURIComponent(url),{signal:AbortSignal.timeout(5000)});
+    const r=await fetch("https://corsproxy.io/?"+encodeURIComponent(url),{signal:AbortSignal.timeout(5000)});
     if(r.ok) return await r.text();
   }catch(e){}
   return "";
