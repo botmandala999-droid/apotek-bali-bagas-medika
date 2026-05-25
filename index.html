@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Apotek Bali Bagas Medika</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
+body{background:#f0f2f5;min-height:100vh}
+.header{background:linear-gradient(135deg,#1e3a5f,#1d4ed8);color:white;padding:16px 20px}
+.header h1{font-size:20px;font-weight:700}
+.header p{font-size:12px;opacity:.7;margin-top:2px}
+.tabs{display:flex;background:white;border-bottom:1px solid #e5e7eb;padding-left:12px;position:sticky;top:0;z-index:10}
+.tab{padding:10px 18px;border:none;background:none;cursor:pointer;color:#64748b;font-size:14px;border-bottom:2px solid transparent;font-weight:500}
+.tab.active{color:#1d4ed8;border-bottom-color:#1d4ed8;font-weight:600}
+.content{padding:12px;max-width:1200px;margin:0 auto}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:12px}
+.card{background:white;border-radius:8px;border:1px solid #e5e7eb;padding:10px 14px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.card-label{font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.3px}
+.card-value{font-size:18px;font-weight:700;margin-top:2px}
+.chart-box{background:white;border-radius:8px;border:1px solid #e5e7eb;padding:12px;margin-bottom:12px}
+.chart-box h3{font-size:13px;color:#374151;margin-bottom:8px}
+.chart{display:flex;gap:4px;align-items:end;height:90px;padding:8px 4px;background:#f9fafb;border-radius:6px}
+.chart-bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
+.chart-bar .val{font-size:8px;color:#6b7280}
+.chart-bar .bar{width:100%;background:#3b82f6;border-radius:3px 3px 0 0;min-height:4px}
+.chart-bar .lbl{font-size:9px;color:#374151;font-weight:500}
+.table-wrap{background:white;border-radius:8px;border:1px solid #e5e7eb;overflow:hidden;margin-bottom:12px}
+.table-title{padding:10px 14px;border-bottom:1px solid #e5e7eb;font-size:13px;font-weight:600;color:#374151}
+.table-title span{font-weight:400;font-size:11px;color:#9ca3af}
+.table-scroll{max-height:400px;overflow:auto}
+table{width:100%;font-size:11px;border-collapse:collapse}
+thead{background:#f1f5f9;position:sticky;top:0}
+th{padding:6px 8px;border-bottom:1px solid #e5e7eb;font-size:10px;color:#475569;text-align:right}
+td{padding:4px 8px;border-bottom:1px solid #f1f5f9;font-size:10px;color:#374151;text-align:right}
+td.l{text-align:left}
+tr:nth-child(even){background:#f8fafc}
+.lunas{background:#f0fdf4!important}
+.belum{background:#fef2f2!important}
+.badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:10px;font-weight:500}
+.badge-green{background:#dcfce7;color:#16a34a}
+.badge-red{background:#fee2e2;color:#dc2626}
+</style>
+</head>
+<body>
+<div class="header"><h1>Apotek Bali Bagas Medika</h1><p>Dashboard Monitoring</p></div>
+<div class="tabs" id="tabs"></div>
+<div class="content" id="content"><p style="color:#6b7280;text-align:center;padding:40px">Memuat data...</p></div>
+<script>
+const S26="12ifCX85urqUxt67Ad5xr26ffzGxvGNz5FFZT38oKZM8";
+const FSID="1f0xEiBz5Mzu79zxks1Ew0lfAdwQu-7VKvKxaUcz3VzU";
+const LSID="1Pl9uQvDSq4qWVT6MzqWCiZoI4Oga0wMhVu7wFwMoW4I";
+const P26M=[{g:"0",l:"Jan"},{g:"1981407338",l:"Feb"},{g:"1445967367",l:"Mar"},{g:"1565950911",l:"Apr"},{g:"2013738206",l:"Mei"},{g:"163552086",l:"Jun"},{g:"1190948522",l:"Jul"}];
+function p(v){return parseInt((v||"0").replace(/[Rp\s,."]/g,""),10)||0}
+function fr(n){return typeof n==="number"?"Rp "+n.toLocaleString("id-ID"):"-"}
+function qs(s){return document.getElementById(s)}
+async function fetchCSV(sid,gid){
+  const r=await fetch("api/gsheet?url="+encodeURIComponent("https://docs.google.com/spreadsheets/d/"+sid+"/export?format=csv&gid="+gid));
+  return await r.text();
+}
+let PX=[],FT=0,FK=0,F=[],curMonth="",curFBln="",lphDates=[],lphData={},lphCur="";
+async function loadData(){
+  let all=[],tt=0,kk=0;
+  for(const m of P26M){try{const txt=await fetchCSV(S26,m.g);if(!txt)continue;const ll=txt.split("
+").filter(l=>l.trim());for(let i=5;i<ll.length;i++){const c=ll[i].split(",");const tgl=(c[0]||"").replace(/"/g,"").trim();if(!/^\d{2}\/\d{2}\/\d{4}$/.test(tgl))continue;all.push({tgl,bln:m.l,cp:p(c[1]),mp:p(c[2]),qp:p(c[3]),jp:p(c[4]),cs:p(c[5]),ms:p(c[6]),qs:p(c[7]),js:p(c[8]),total:p(c[9]),kj:p(c[10])});tt+=p(c[9]);kk+=p(c[10]);}}catch(e){}}
+  all.sort((a,b)=>{const[d1,m1,y1]=a.tgl.split("/");const[d2,m2,y2]=b.tgl.split("/");return new Date(y1,m1-1,d1)-new Date(y2,m2-1,d2);});PX=all;FT=tt;FK=kk;
+  const sf=[];for(const m of P26M){try{const txt=await fetchCSV(FSID,m.g);if(!txt)continue;const ll=txt.split("
+").filter(l=>l.trim());for(let i=4;i<ll.length;i++){const c=ll[i].split(",");const v=parseInt((c[0]||"").replace(/"/g,""),10);if(!v||v<=0)continue;sf.push({no:c[0].replace(/"/g,""),pbf:(c[1]||"").replace(/"/g,""),jml:p(c[2]),sb:(c[5]||"").replace(/"/g,"").trim().toUpperCase()==="TRUE",bln:m.l});}}catch(e){}}F=sf;
+  for(const m of P26M){try{const txt=await fetchCSV(LSID,m.g);if(!txt)continue;const ll=txt.split("
+").filter(l=>l.trim());const tg=ll[2]?.split(",")[3]?.replace(/"/g,"")?.trim()||"";if(!tg||lphDates.includes(tg))continue;lphDates.push(tg);const rr=[];for(const l of ll){const c=l.split(",").map(x=>x.replace(/"/g,"").trim());if(c[0])rr.push({u:c[0],p:c[1]||"-",s:c[2]||"-",t:c[3]||"-"});}if(rr.length>0)lphData[tg]={tg,rr};}catch(e){}}
+  lphDates.sort((a,b)=>{const[d1,m1,y1]=a.split(".");const[d2,m2,y2]=b.split(".");return new Date(y1,m1-1,d1)-new Date(y2,m2-1,d2);});if(lphDates.length>0)lphCur=lphDates[lphDates.length-1];
+  renderTabs();renderContent("p");
+}
+function renderTabs(){qs("tabs").innerHTML=[{k:"p",l:"Penjualan"},{k:"l",l:"LPH"},{k:"f",l:"Faktur"}].map(t=>'<button class="tab'+(t.k==="p"?" active":"")+'" onclick="switchTab(''+t.k+'')">'+t.l+'</button>').join("");}
+function switchTab(k){document.querySelectorAll(".tab").forEach((t,i)=>t.className="tab"+(i===["p","l","f"].indexOf(k)?" active":""));renderContent(k);}
+function renderContent(k){if(k==="p")renderPenjualan();else if(k==="l")renderLPH();else renderFaktur();}
+function renderPenjualan(){
+  const blnArr=["Jan","Feb","Mar","Apr","Mei","Jun","Jul"];
+  const filtered=curMonth?PX.filter(d=>d.bln===curMonth):PX;
+  const MT=filtered.reduce((s,d)=>s+d.total,0),MK=filtered.reduce((s,d)=>s+d.kj,0);
+  let h='<div style="margin-bottom:12px;display:flex;gap:6px;flex-wrap:wrap">'+
+    '<button onclick="curMonth='';renderPenjualan()" style="padding:6px 14px;border-radius:20px;border:1px solid '+(curMonth===''?'#1d4ed8':'#d1d5db')+';background:'+(curMonth===''?'#1d4ed8':'white')+';color:'+(curMonth===''?'white':'#374151')+';cursor:pointer;font-size:13px;font-weight:500">Semua</button>'+
+    blnArr.map(b=>'<button onclick="curMonth=''+b+'';renderPenjualan()" style="padding:6px 14px;border-radius:20px;border:1px solid '+(curMonth===b?'#1d4ed8':'#d1d5db')+';background:'+(curMonth===b?'#1d4ed8':'white')+';color:'+(curMonth===b?'white':'#374151')+';cursor:pointer;font-size:13px;font-weight:500">'+b+'</button>').join("")+
+    '</div><div class="cards">'+
+    '<div class="card"><div class="card-label">Omzet'+(curMonth?' '+curMonth:' 2026')+'</div><div class="card-value" style="color:#d97706">'+fr(MT)+'</div></div>'+
+    '<div class="card"><div class="card-label">Kunjungan</div><div class="card-value" style="color:#2563eb">'+MK.toLocaleString("id-ID")+'</div></div>'+
+    '<div class="card"><div class="card-label">Rata/Hari</div><div class="card-value" style="color:#059669">'+fr(filtered.length>0?Math.round(MT/filtered.length):0)+'</div></div>'+
+    '<div class="card"><div class="card-label">Faktur Belum</div><div class="card-value" style="color:#dc2626">'+F.filter(d=>!d.sb).length+'</div></div></div>'+
+    '<div class="chart-box"><h3>Omzet per Bulan</h3><div class="chart">'+
+    blnArr.map(b=>{const p=PX.filter(d=>d.bln===b);const tot=p.reduce((s,d)=>s+d.total,0);const h2=FT>0?(tot/FT)*80:0;return '<div class="chart-bar"><div class="val">'+fr(tot)+'</div><div class="bar" style="height:'+Math.max(h2,3)+'px;background:'+(curMonth===b?'#d97706':'#3b82f6')+'"></div><div class="lbl">'+b+'</div></div>';}).join("")+
+    '</div></div><div class="table-wrap"><div class="table-title">Penjualan Harian 2026'+(curMonth?' - '+curMonth:'')+' <span>('+filtered.length+' baris)</span></div><div class="table-scroll"><table><thead><tr>'+
+    '<th style="text-align:left">Tanggal</th><th>Cash P</th><th>Mandiri P</th><th>QRIS P</th><th>Jml P</th><th>Cash S</th><th>Mandiri S</th><th>QRIS S</th><th>Jml S</th><th>Total</th><th>Kunj</th></tr></thead><tbody>'+
+    [...filtered].reverse().map(d=>'<tr><td class="l">'+d.tgl+'</td><td>'+fr(d.cp)+'</td><td>'+fr(d.mp)+'</td><td>'+fr(d.qp)+'</td><td>'+fr(d.jp)+'</td><td>'+fr(d.cs)+'</td><td>'+fr(d.ms)+'</td><td>'+fr(d.qs)+'</td><td>'+fr(d.js)+'</td><td style="font-weight:600;color:#2563eb">'+fr(d.total)+'</td><td>'+d.kj+'</td></tr>').join("")+
+    '</tbody></table></div></div>';qs("content").innerHTML=h;
+}
+function renderLPH(){
+  const data=lphCur&&lphData[lphCur]?lphData[lphCur]:null;
+  if(!data||!lphDates.length){qs("content").innerHTML='<p style="color:#6b7280;text-align:center;padding:20px">Memuat LPH...</p>';return;}
+  let h='<div style="margin-bottom:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">'+
+    '<select onchange="lphCur=this.value;renderLPH()" style="padding:8px 14px;border-radius:6px;border:1px solid #d1d5db;font-size:13px;background:white;cursor:pointer;flex:1;max-width:200px">'+
+    lphDates.map(d=>'<option value="'+d+'"'+(lphCur===d?' selected':'')+'>'+d+'</option>').join("")+
+    '</select><button onclick="window.print()" style="background:#1d4ed8;color:white;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:500">Cetak</button></div>'+
+    '<div class="table-wrap" id="lp"><div style="text-align:center;padding:8px;border-bottom:1px solid #e5e7eb"><h2 style="font-size:13px;font-weight:700;margin:0">LAPORAN PENJUALAN HARIAN (LPH)</h2>'+
+    '<p style="font-size:10px;color:#6b7280;margin:1px 0">APOTEK BALI BAGAS MEDIKA</p>'+(data.tg?'<p style="font-size:11px;font-weight:700;margin:2px 0 0">TANGGAL: '+data.tg+'</p>':'')+
+    '</div><table><thead><tr><th style="text-align:left">URAIAN</th><th>PAGI</th><th>SIANG</th><th>TOTAL</th></tr></thead><tbody>'+
+    data.rr.map((r,i)=>'<tr'+(i%2===1?' style="background:#f8fafc"':'')+'><td class="l" style="font-weight:'+(r.u.toUpperCase()==="KUNJUNGAN"?600:400)+'">'+r.u+'</td><td>'+r.p+'</td><td>'+r.s+'</td><td style="font-weight:600">'+r.t+'</td></tr>').join("")+
+    '</tbody></table></div>';qs("content").innerHTML=h;
+}
+function renderFaktur(){
+  const blnArr=["Jan","Feb","Mar","Apr","Mei","Jun","Jul"];const filtered=curFBln?F.filter(d=>d.bln===curFBln):F;
+  const l=filtered.filter(d=>d.sb).length,bl=filtered.filter(d=>!d.sb).length,nv=filtered.reduce((s,d)=>s+d.jml,0),pv=filtered.filter(d=>!d.sb).reduce((s,d)=>s+d.jml,0);
+  let h='<div style="margin-bottom:12px;display:flex;gap:6px;flex-wrap:wrap">'+
+    '<button onclick="curFBln='';renderFaktur()" style="padding:6px 14px;border-radius:20px;border:1px solid '+(curFBln===''?'#1d4ed8':'#d1d5db')+';background:'+(curFBln===''?'#1d4ed8':'white')+';color:'+(curFBln===''?'white':'#374151')+';cursor:pointer;font-size:13px;font-weight:500">Semua</button>'+
+    blnArr.map(b=>'<button onclick="curFBln=''+b+'';renderFaktur()" style="padding:6px 14px;border-radius:20px;border:1px solid '+(curFBln===b?'#1d4ed8':'#d1d5db')+';background:'+(curFBln===b?'#1d4ed8':'white')+';color:'+(curFBln===b?'white':'#374151')+';cursor:pointer;font-size:13px;font-weight:500">'+b+'</button>').join("")+
+    '</div><div class="cards">'+
+    '<div class="card"><div class="card-label">Total'+(curFBln?' '+curFBln:'')+'</div><div class="card-value" style="color:#3b82f6">'+filtered.length+'</div></div>'+
+    '<div class="card"><div class="card-label">Lunas</div><div class="card-value" style="color:#10b981">'+l+'</div></div>'+
+    '<div class="card"><div class="card-label">Belum</div><div class="card-value" style="color:#ef4444">'+bl+'</div></div>'+
+    '<div class="card"><div class="card-label">Nilai</div><div class="card-value" style="color:#8b5cf6;font-size:15px">'+fr(nv)+'</div></div>'+
+    '<div class="card"><div class="card-label">Piutang</div><div class="card-value" style="color:#dc2626;font-size:15px">'+fr(pv)+'</div></div></div>'+
+    '<div class="table-wrap"><div class="table-title">Faktur 2026 <span>('+filtered.length+' faktur)</span></div><div class="table-scroll"><table><thead><tr>'+
+    '<th style="text-align:left">Bln</th><th style="text-align:left">No</th><th style="text-align:left">PBF</th><th>Nilai</th><th style="text-align:center">Status</th></tr></thead><tbody>'+
+    filtered.slice(0,200).map(d=>'<tr class="'+(d.sb?'lunas':'belum')+'"><td class="l">'+d.bln+'</td><td class="l">'+d.no+'</td><td class="l">'+d.pbf+'</td><td>'+fr(d.jml)+'</td><td style="text-align:center"><span class="badge '+(d.sb?'badge-green':'badge-red')+'">'+(d.sb?"LUNAS":"BELUM")+'</span></td></tr>').join("")+
+    '</tbody></table></div></div>';qs("content").innerHTML=h;
+}
+loadData();
+</script>
+</body>
+</html>
