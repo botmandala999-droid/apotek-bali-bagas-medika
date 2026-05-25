@@ -58,7 +58,7 @@ function fr(n){return typeof n==="number"?"Rp "+n.toLocaleString("id-ID"):"-"}
 function $(s){return document.getElementById(s)}
 
 async function gv(sid,gid){
-  const r=await fetch("https://docs.google.com/spreadsheets/d/"+sid+"/gviz/tq?tqx=out:json&tq=&gid="+gid));
+  const r=await fetch("https://corsproxy.io/?"+encodeURIComponent("https://docs.google.com/spreadsheets/d/"+sid+"/export?format=csv&gid="+gid));
   const txt=await r.text();
   const ll=txt.split("
 ").filter(l=>l.trim()).slice(5);
