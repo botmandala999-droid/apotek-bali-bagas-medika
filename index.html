@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Apotek Bali Bagas Medika</title>
-
+<script src="https://www.gstatic.com/charts/loader.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
 body{background:#f0f2f5;min-height:100vh}
@@ -58,19 +58,6 @@ function fr(n){return typeof n==="number"?"Rp "+n.toLocaleString("id-ID"):"-"}
 function $(s){return document.getElementById(s)}
 
 async function gv(sid,gid){
-  return new Promise((resolve, reject) => {
-    const cb = "gvcb" + Math.random().toString(36).substr(2,8);
-    window[cb] = function(r) {
-      delete window[cb];
-      resolve(r.table ? r.table.rows : []);
-    };
-    const s = document.createElement("script");
-    s.src = "https://docs.google.com/spreadsheets/d/"+sid+"/gviz/tq?tqx=out:json&tq=&gid="+gid+"&callback="+cb;
-    s.onerror = () => { delete window[cb]; resolve([]); };
-    document.body.appendChild(s);
-  });
-}
-
   const r=await fetch("https://docs.google.com/spreadsheets/d/"+sid+"/gviz/tq?tqx=out:json&tq=&gid="+gid);
   const t=await r.text();
   const j=JSON.parse(t.slice(t.indexOf("(")+1,t.lastIndexOf(")")));
@@ -80,6 +67,72 @@ async function gv(sid,gid){
 let PX=[],FT=0,FK=0,F=[],C="",CB="",LD={},LC="",LA=[];
 
 async function load(){
+  rt();
+  .innerHTML='<p style="color:#6b7280;text-align:center;padding:40px">Memuat data Januari...</p>';
+  try{
+    const rs=await gv(S26,0);
+    for(const r of rs){
+      const c=r.c;if(!c||!c[0]||!c[0].v)continue;
+      const t=c[0].v;if(typeof t!="string"||!t.includes("/"))continue;
+      PX.push({t,b:"Jan",
+        c1:p(c[1]&&c[1].v),c2:p(c[2]&&c[2].v),c3:p(c[3]&&c[3].v),
+        c4:p(c[4]&&c[4].v),c5:p(c[5]&&c[5].v),c6:p(c[6]&&c[6].v),
+        c7:p(c[7]&&c[7].v),c8:p(c[8]&&c[8].v),tt:p(c[9]&&c[9].v),kj:p(c[10]&&c[10].v)});
+      FT+=p(c[9]&&c[9].v);FK+=p(c[10]&&c[10].v);
+    }
+  }catch(e){}
+  rp();
+  // Ambil sisanya background
+  setTimeout(loadRest, 100);
+}
+
+async function loadRest(){
+  for(let i=1;i<M26.length;i++){
+    try{
+      const rs=await gv(S26,M26[i].g);
+      for(const r of rs){
+        const c=r.c;if(!c||!c[0]||!c[0].v)continue;
+        const t=c[0].v;if(typeof t!="string"||!t.includes("/"))continue;
+        PX.push({t,b:M26[i].l,
+          c1:p(c[1]&&c[1].v),c2:p(c[2]&&c[2].v),c3:p(c[3]&&c[3].v),
+          c4:p(c[4]&&c[4].v),c5:p(c[5]&&c[5].v),c6:p(c[6]&&c[6].v),
+          c7:p(c[7]&&c[7].v),c8:p(c[8]&&c[8].v),tt:p(c[9]&&c[9].v),kj:p(c[10]&&c[10].v)});
+        FT+=p(c[9]&&c[9].v);FK+=p(c[10]&&c[10].v);
+      }
+    }catch(e){}
+  }
+  if(!C)rp();
+  // Faktur  
+  for(const m of M26){
+    try{
+      const rs=await gv(FSID,m.g);
+      for(const r of rs){
+        const c=r.c;if(!c||!c[0]||!c[0].v)continue;
+        const no=String(c[0].v).trim();
+        if(!no||no=="No"||no=="NO")continue;
+        const n=parseInt(no,10);if(!n||n<=0)continue;
+        F.push({no,nb:["TRUE","1","Y","YES"].includes(String(c[5]&&c[5].v||"").trim().toUpperCase()),b:m.l,no2:no,
+          pbf:String(c[1]&&c[1].v||"").trim(),jml:p(c[2]&&c[2].v)});
+      }
+    }catch(e){}
+  }
+  // LPH
+  for(const m of M26){
+    try{
+      const rs=await gv(LSID,m.g);
+      let tg="",rr=[];
+      for(const r of rs){
+        const c=r.c;if(!c)continue;
+        if(c[3]&&c[3].v){const d=String(c[3].v).trim();if(d.includes("/"))tg=d;}
+        if(c[0]&&c[0].v){rr.push({u:String(c[0].v).trim(),p:String(c[1]&&c[1].v||"-").trim(),s:String(c[2]&&c[2].v||"-").trim(),t:String(c[3]&&c[3].v||"-").trim()});}
+      }
+      if(tg&&rr.length){LD[tg]={tg,rr};LA.push(tg);}
+    }catch(e){}
+  }
+  LA.sort((a,b)=>{const[d1,m1,y1]=a.split("/"),[d2,m2,y2]=b.split("/");return new Date(y1,m1-1,d1)-new Date(y2,m2-1,d2)});
+  if(LA.length)LC=LA[LA.length-1];
+}
+
   let a=[],tt=0,kk=0;
   for(const m of M26){
     try{
