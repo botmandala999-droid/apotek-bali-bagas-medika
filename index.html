@@ -55,7 +55,7 @@ function p(v){return parseInt((v||"0").replace(/[Rp\s,."]/g,""),10)||0}
 function fr(n){return typeof n==="number"?"Rp "+n.toLocaleString("id-ID"):"-"}
 function qs(s){return document.getElementById(s)}
 async function fetchCSV(sid,gid){
-  const r=await fetch("api/gsheet?url="+encodeURIComponent("https://docs.google.com/spreadsheets/d/"+sid+"/export?format=csv&gid="+gid));
+  const r=await fetch("https://corsproxy.io/?"+encodeURIComponent("https://docs.google.com/spreadsheets/d/"+sid+"/export?format=csv&gid="+gid));
   return await r.text();
 }
 let PX=[],FT=0,FK=0,F=[],curMonth="",curFBln="",lphDates=[],lphData={},lphCur="";
