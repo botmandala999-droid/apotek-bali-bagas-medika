@@ -64,7 +64,7 @@ const FSID="1f0xEiBz5Mzu79zxks1Ew0lfAdwQu-7VKvKxaUcz3VzU";
 const LSID="1Pl9uQvDSq4qWVT6MzqWCiZoI4Oga0wMhVu7wFwMoW4I";
 const M26=[{g:0,l:"Jan"},{g:1981407338,l:"Feb"},{g:1445967367,l:"Mar"},{g:1565950911,l:"Apr"},{g:2013738206,l:"Mei"},{g:163552086,l:"Jun"},{g:1190948522,l:"Jul"}];
 
-function p(v){return parseInt(String(v||"0").replace(/[^\d\-]/g,""),10)||0}
+function p(v){if(typeof v=="number")return v;return parseInt(String(v||"0").replace(/[^\d\-]/g,""),10)||0}
 function fr(n){return typeof n==="number"?"Rp "+n.toLocaleString("id-ID"):"-"}
 function $(s){return document.getElementById(s)}
 
@@ -95,7 +95,7 @@ async function load(){  // Restore dari cache kalo ada
     const rs=await gv(S26,0);
     for(const r of rs){
       const c=r.c;if(!c||!c[0]||!c[0].v)continue;
-      const t=c[0].v;if(typeof t!="string"||!t.includes("/"))continue;
+      const t=typeof c[0].v=="string"?c[0].v:(typeof c[0].f=="string"?c[0].f:"");if(!t.includes("/"))continue;
       PX.push({t,b:"Jan",
         c1:p(c[1]&&c[1].v),c2:p(c[2]&&c[2].v),c3:p(c[3]&&c[3].v),
         c4:p(c[4]&&c[4].v),c5:p(c[5]&&c[5].v),c6:p(c[6]&&c[6].v),
@@ -114,7 +114,7 @@ async function loadRest(){
       const rs=await gv(S26,M26[i].g);
       for(const r of rs){
         const c=r.c;if(!c||!c[0]||!c[0].v)continue;
-        const t=c[0].v;if(typeof t!="string"||!t.includes("/"))continue;
+        const t=typeof c[0].v=="string"?c[0].v:(typeof c[0].f=="string"?c[0].f:"");if(!t.includes("/"))continue;
         PX.push({t,b:M26[i].l,
           c1:p(c[1]&&c[1].v),c2:p(c[2]&&c[2].v),c3:p(c[3]&&c[3].v),
           c4:p(c[4]&&c[4].v),c5:p(c[5]&&c[5].v),c6:p(c[6]&&c[6].v),
@@ -151,7 +151,7 @@ async function loadRest(){
       if(tg&&rr.length){LD[tg]={tg,rr};LA.push(tg);}
     }catch(e){}
   }
-  LA.sort((a,b)=>{const[d1,m1,y1]=a.split("/"),[d2,m2,y2]=b.split("/");return new Date(y1,m1-1,d1)-new Date(y2,m2-1,d2)});
+  LA.sort((a,b)=>new Date(a.split("/").reverse().join("-"))-new Date(b.split("/").reverse().join("-")));
   if(LA.length)LC=LA[LA.length-1];
 }
 
@@ -161,7 +161,7 @@ async function loadRest(){
       const rs=await gv(S26,m.g);
       for(const r of rs){
         const c=r.c;if(!c||!c[0]||!c[0].v)continue;
-        const t=c[0].v;if(typeof t!="string"||!t.includes("/"))continue;
+        const t=typeof c[0].v=="string"?c[0].v:(typeof c[0].f=="string"?c[0].f:"");if(!t.includes("/"))continue;
         a.push({t,b:m.l,
           c1:p(c[1]&&c[1].v),c2:p(c[2]&&c[2].v),c3:p(c[3]&&c[3].v),
           c4:p(c[4]&&c[4].v),c5:p(c[5]&&c[5].v),c6:p(c[6]&&c[6].v),
@@ -170,7 +170,7 @@ async function loadRest(){
       }
     }catch(e){}
   }
-  a.sort((a,b)=>{const[d1,m1,y1]=a.t.split("/"),[d2,m2,y2]=b.t.split("/");return new Date(y1,m1-1,d1)-new Date(y2,m2-1,d2)});
+  a.sort((a,b)=>new Date(a.t.split("/").reverse().join("-"))-new Date(b.t.split("/").reverse().join("-")));
   PX=a;FT=tt;FK=kk;
 
   let sf=[];
@@ -205,7 +205,7 @@ async function loadRest(){
       if(tg&&rr.length){LD[tg]={tg,rr};LA.push(tg);}
     }catch(e){}
   }
-  LA.sort((a,b)=>{const[d1,m1,y1]=a.split("/"),[d2,m2,y2]=b.split("/");return new Date(y1,m1-1,d1)-new Date(y2,m2-1,d2)});
+  LA.sort((a,b)=>new Date(a.split("/").reverse().join("-"))-new Date(b.split("/").reverse().join("-")));
   if(LA.length)LC=LA[LA.length-1];
 
   rt();rc("p");
