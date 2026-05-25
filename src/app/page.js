@@ -5,25 +5,20 @@ const NL = String.fromCharCode(92,110);
 const DR = new RegExp("^\\d{2}/\\d{2}/\\d{4}$");
 const DN = new RegExp("^\\d+$");
 const S26 = "12ifCX85urqUxt67Ad5xr26ffzGxvGNz5FFZT38oKZM8";
-const S25 = "1hf-QOppWoC4oxzVIfluS82y8ZIRLv5AMP7ghpLRHeeE";
-const S24 = "1X8sU5TbwIFrfva-Hv3lJwKmNWBAXlF4wKWLq4TUkXkY";
 const FSID = "1f0xEiBz5Mzu79zxks1Ew0lfAdwQu-7VKvKxaUcz3VzU";
 const LSID = "1Pl9uQvDSq4qWVT6MzqWCiZoI4Oga0wMhVu7wFwMoW4I";
 const LG = [0,76269533,1004144241,1047687838,1049487848,1269180586,1269826655,1375079069,1508503184,1668129507,1704465439,2057032683,2092131821,2106161542,2142536146,226069595,233866909,246287253,256317823,338679084,443409010,456439832,456923066,527597092,543521900,556096497,742200864,762801297,867905108,936206001,993453517];
 const LU = ["TARGET SHIFT","OMZET","% PENCAPAIN","GAP VS TARGET","CASH","DEBIT MANDIRI","DEBIT QRIS","NOTA","FAKTUR","SETORAN"];
 const P26M = [{g:"0",l:"Jan"},{g:"1981407338",l:"Feb"},{g:"1445967367",l:"Mar"},{g:"1565950911",l:"Apr"},{g:"2013738206",l:"Mei"},{g:"163552086",l:"Jun"},{g:"1190948522",l:"Jul"}];
 const FM = [{g:"0",l:"Jan"},{g:"914339812",l:"Feb"},{g:"1942627049",l:"Mar"},{g:"85697732",l:"Apr"},{g:"452486501",l:"Mei"}];
-const M24 = {0:"Jan",1462383099:"Feb",907772167:"Mar",232891112:"Apr",282938849:"Mei",731458776:"Jun",1406355561:"Jul",1803306864:"Agu",1496176196:"Sep",1600880255:"Okt",139141189:"Nov",1094972947:"Des"};
-const M25 = {0:"Jan",200361189:"Feb",948223844:"Mar",1168220512:"Apr",1057815698:"Mei",278075545:"Jun",10910240:"Jul",126222887:"Agu",1341963010:"Sep",1387254622:"Okt",2067058499:"Sep",889768507:"DG"};
-const BS = {JAN:"Jan",FEB:"Feb",MAR:"Mar",APR:"Apr",MEI:"Mei",JUN:"Jun",JUL:"Jul",AUG:"Agu",SEP:"Sep",OKT:"Okt",NOV:"Nov",DES:"Des"};
 
 function p(v){return parseInt((v||"0").replace(/[Rp\s,."]/g,""),10)||0;}
 function fr(n){return typeof n==="number"?("Rp "+n.toLocaleString("id-ID")):"-";}
 
 export default function Home(){
   const [L,setL]=useState(true);const [E,setE]=useState("");const [T,setT]=useState("p");
-  const [P26,setP26]=useState({});const [P25,setP25]=useState({});const [P24,setP24]=useState({});
-  const [F,setF]=useState({});const [LP,setLP]=useState({});  const [BA,setBA]=useState("");const [B24,setB24]=useState("");const [B25,setB25]=useState("");
+  const [P26,setP26]=useState({});
+  const [F,setF]=useState({});const [LP,setLP]=useState({});  const [BA,setBA]=useState("");
   const [FB,setFB]=useState("Jan");const [LD,setLD]=useState("");
 
   useEffect(()=>{(async()=>{try{
@@ -32,16 +27,8 @@ export default function Home(){
     const ps=ll.slice(4).filter(r=>{const c=r.split(",");return c[0]&&DR.test(c[0].replace(/"/g,""));}).map(r=>{const c=r.split(",");return{tgl:c[0].replace(/"/g,""),tt:p(c[9]),kj:p(c[10])};});
     if(ps.length>0)a[m.l]=ps;}catch(e){}}
     setP26(a);
-    const b={};
-    for(const [gid,bln]of Object.entries(M25)){if(bln==="DG")continue;try{const r=await fetch("/api/gsheet?url="+encodeURIComponent("https://docs.google.com/spreadsheets/d/"+S25+"/export?format=csv&gid="+gid));const t=await r.text();const ll=t.split(NL).filter(l=>l.trim());
-    const ps=ll.slice(4).filter(r=>{const c=r.split(",");return c[0]&&DR.test(c[0].replace(/"/g,""));}).map(r=>{const c=r.split(",");return{tgl:c[0].replace(/"/g,""),tt:p(c[9]),kj:p(c[10])};});
-    if(ps.length>0)b[bln]=ps;}catch(e){}}
-    setP25(b);
-    const c={};
-    for(const [gid,bln]of Object.entries(M24)){try{const r=await fetch("/api/gsheet?url="+encodeURIComponent("https://docs.google.com/spreadsheets/d/"+S24+"/export?format=csv&gid="+gid));const t=await r.text();const ll=t.split(NL).filter(l=>l.trim());
-    const ps=ll.slice(4).filter(r=>{const c=r.split(",");return c[0]&&DR.test(c[0].replace(/"/g,""));}).map(r=>{const c=r.split(",");return{tgl:c[0].replace(/"/g,""),tt:p(c[3]),kj:p(c[4])};});
-    if(ps.length>0)c[bln]=ps;}catch(e){}}
-    setP24(c);
+    
+    
     const sf={};
     for(const m of FM){try{const r=await fetch("/api/gsheet?url="+encodeURIComponent("https://docs.google.com/spreadsheets/d/"+FSID+"/export?format=csv&gid="+m.g));const t=await r.text();const ll=t.split(NL).filter(l=>l.trim());
     const ps=ll.slice(4).filter(r=>{const c=r.split(",");return c[0]&&DN.test(c[0].replace(/"/g,""));}).map(r=>{const c=r.split(",");return{no:c[0].replace(/"/g,""),pbf:(c[1]||"").replace(/"/g,""),jml:p(c[2]),sb:(c[5]||"").replace(/"/g,"").trim().toUpperCase()==="TRUE"};});
@@ -54,9 +41,7 @@ export default function Home(){
     if(rr.length>0)lm[tg]={tg,rr};}catch(e){}}
     setLP(lm);
             const ka=Object.keys(a);if(ka.length>0)setBA(ka[ka.length-1]);
-    const k25=Object.keys(b);if(k25.length>0)setB25(k25[0]);
-    const k24=Object.keys(c);if(k24.length>0)setB24(k24[0]);
-    const ds=Object.keys(lm).sort((a,b)=>{const[d1,m1,y1]=a.split(".");const[d2,m2,y2]=b.split(".");return new Date(y1,m1-1,d1)-new Date(y2,m2-1,d2);});
+            const ds=Object.keys(lm).sort((a,b)=>{const[d1,m1,y1]=a.split(".");const[d2,m2,y2]=b.split(".");return new Date(y1,m1-1,d1)-new Date(y2,m2-1,d2);});
     if(ds.length>0)setLD(ds[ds.length-1]);
   }catch(e){setE("Err: "+e.message);}setL(false);})();},[]);
 
@@ -83,15 +68,14 @@ export default function Home(){
 </div>
 <div style={{padding:16,maxWidth:1200,margin:"0 auto"}}>
 {T==="p"&&<PenjualanUI BA={BA} setBA={setBA} kl26={Object.keys(P26)} pj={pj} tt26={tt26}
-B24={B24} setB24={setB24} kl24={Object.keys(P24)} p24={p24} tt24={tt24}
-B25={B25} setB25={setB25} kl25={Object.keys(P25)} p25={p25} tt25={tt25}/>}
+/>}
 {T==="l"&&<LPHUI lds={lds} LD={LD} setLD={setLD} lp={lp}/>}
 {T==="f"&&<FakturUI Fkeys={Object.keys(F)} FB={FB} setFB={setFB} fk={fk}/>}
 </div>
 </div>;
 }
 
-function PenjualanUI({BA,setBA,kl26,pj,tt26,B24,setB24,kl24,p24,tt24,B25,setB25,kl25,p25,tt25}){
+function PenjualanUI({BA,setBA,kl26,pj,tt26,}){
 return <div>
 <div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap",alignItems:"center"}}>
 <span style={{color:"rgba(255,255,255,.7)",fontSize:12,fontWeight:500}}>2026:</span>
@@ -105,11 +89,9 @@ return <div>
 {kl24.map(b=><option key={b} value={b}>{b}</option>)}</select>
 </div>
 <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))",gap:12,marginBottom:20}}>
-<Kartu label={"Omzet 2026"} v={fr(tt26)} c="#f59e0b"/><Kartu label={"Omzet 2025"} v={fr(tt25)} c="#3b82f6"/><Kartu label={"Omzet 2024"} v={fr(tt24)} c="#10b981"/>
+<Kartu label={"Omzet 2026"} v={fr(tt26)} c="#f59e0b"/>
 </div>
 {kl26.length>0&&pj.length>0&&<Tabel title={"Penjualan Harian 2026 - "+BA} data={[...pj].reverse()} cols={["tgl","tt","kj"]} fmt={(k,v)=>k==="tt"?fr(v):v}/>}
-{kl25.length>0&&p25.length>0&&<Tabel title={"Penjualan Harian 2025 - "+B25} data={[...p25].reverse()} cols={["tgl","tt","kj"]} fmt={(k,v)=>k==="tt"?fr(v):v}/>}
-{kl24.length>0&&p24.length>0&&<Tabel title={"Penjualan Harian 2024 - "+B24} data={[...p24].reverse()} cols={["tgl","tt","kj"]} fmt={(k,v)=>k==="tt"?fr(v):v}/>}
 </div>;}
 
 function Kartu({label,v,color:c}){return <div style={{background:"rgba(255,255,255,.95)",backdropFilter:"blur(10px)",borderRadius:12,padding:"14px 16px",boxShadow:"0 2px 8px rgba(0,0,0,.08)",border:"1px solid rgba(255,255,255,.6)"}}>
