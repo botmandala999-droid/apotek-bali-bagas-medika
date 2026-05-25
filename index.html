@@ -4,7 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Apotek Bali Bagas Medika</title>
-<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="https://www.gstatic.com/charts/loader.js">
+  // Cache data ke localStorage biar cepet pas refresh
+  try{
+    localStorage.setItem("bbm_px", JSON.stringify(PX));
+    localStorage.setItem("bbm_ft", String(FT));
+    localStorage.setItem("bbm_fk", String(FK));
+    localStorage.setItem("bbm_f", JSON.stringify(F));
+    localStorage.setItem("bbm_ld", JSON.stringify(LD));
+    localStorage.setItem("bbm_la", JSON.stringify(LA));
+    localStorage.setItem("bbm_lc", LC);
+  }catch(e){}
+</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
 body{background:#f0f2f5;min-height:100vh}
@@ -66,7 +77,18 @@ async function gv(sid,gid){
 
 let PX=[],FT=0,FK=0,F=[],C="",CB="",LD={},LC="",LA=[];
 
-async function load(){
+async function load(){  // Restore dari cache kalo ada
+  try{
+    const cx = localStorage.getItem("bbm_px");
+    if(cx){PX=JSON.parse(cx);FT=parseInt(localStorage.getItem("bbm_ft")||"0");FK=parseInt(localStorage.getItem("bbm_fk")||"0");
+      F=JSON.parse(localStorage.getItem("bbm_f")||"[]");
+      LD=JSON.parse(localStorage.getItem("bbm_ld")||"{}");
+      LA=JSON.parse(localStorage.getItem("bbm_la")||"[]");
+      LC=localStorage.getItem("bbm_lc")||"";
+      rt();rc("p");
+    }
+  }catch(e){}
+
   rt();
   .innerHTML='<p style="color:#6b7280;text-align:center;padding:40px">Memuat data Januari...</p>';
   try{
@@ -258,6 +280,17 @@ function rf(){
 }
 
 load();
+
+  // Cache data ke localStorage biar cepet pas refresh
+  try{
+    localStorage.setItem("bbm_px", JSON.stringify(PX));
+    localStorage.setItem("bbm_ft", String(FT));
+    localStorage.setItem("bbm_fk", String(FK));
+    localStorage.setItem("bbm_f", JSON.stringify(F));
+    localStorage.setItem("bbm_ld", JSON.stringify(LD));
+    localStorage.setItem("bbm_la", JSON.stringify(LA));
+    localStorage.setItem("bbm_lc", LC);
+  }catch(e){}
 </script>
 </body>
 </html>
