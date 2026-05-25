@@ -23,8 +23,7 @@ function fr(n){return typeof n==="number"?("Rp "+n.toLocaleString("id-ID")):"-";
 export default function Home(){
   const [L,setL]=useState(true);const [E,setE]=useState("");const [T,setT]=useState("p");
   const [P26,setP26]=useState({});const [P25,setP25]=useState({});const [P24,setP24]=useState({});
-  const [F,setF]=useState({});const [LP,setLP]=useState({});const [DG,setDG]=useState({2024:[],2025:[],2026:[]});
-  const [BA,setBA]=useState("");const [B24,setB24]=useState("");const [B25,setB25]=useState("");
+  const [F,setF]=useState({});const [LP,setLP]=useState({});  const [BA,setBA]=useState("");const [B24,setB24]=useState("");const [B25,setB25]=useState("");
   const [FB,setFB]=useState("Jan");const [LD,setLD]=useState("");
 
   useEffect(()=>{(async()=>{try{
@@ -54,9 +53,7 @@ export default function Home(){
     for(const l of ll){const c=l.split(",").map(x=>x.replace(/"/g,"").trim());const u=c[0].toUpperCase().trim();if(LU.some(v=>u===v||u.startsWith(v)))rr.push({u:c[0],p:c[1]||"-",s:c[2]||"-",t:c[3]||"-"});}
     if(rr.length>0)lm[tg]={tg,rr};}catch(e){}}
     setLP(lm);
-    async function ld(s,g){try{const r=await fetch("/api/gsheet?url="+encodeURIComponent("https://docs.google.com/spreadsheets/d/"+s+"/export?format=csv&gid="+g));const t=await r.text();const ll=t.split(NL).filter(l=>l.trim());const res=[];for(let i=2;i<14&&i<ll.length;i++){const c=ll[i].split(",");const b=c[0]?.replace(/"/g,"")?.trim()||"";if(b)res.push({b:b,t:p(c[1]),k:p(c[4])});}return res;}catch(e){return[];}}
-    setDG({2024:await ld(S24,"889768507"),2025:await ld(S25,"889768507"),2026:await ld(S26,"471302708")});
-    const ka=Object.keys(a);if(ka.length>0)setBA(ka[ka.length-1]);
+            const ka=Object.keys(a);if(ka.length>0)setBA(ka[ka.length-1]);
     const k25=Object.keys(b);if(k25.length>0)setB25(k25[0]);
     const k24=Object.keys(c);if(k24.length>0)setB24(k24[0]);
     const ds=Object.keys(lm).sort((a,b)=>{const[d1,m1,y1]=a.split(".");const[d2,m2,y2]=b.split(".");return new Date(y1,m1-1,d1)-new Date(y2,m2-1,d2);});
@@ -68,8 +65,7 @@ export default function Home(){
   const p25=B25?(P25[B25]||[]):[];const tt25=p25.reduce((s,d)=>s+d.tt,0);
   const fk=FB?(F[FB]||[]):[];const lds=Object.keys(LP).sort((a,b)=>{const[d1,m1,y1]=a.split(".");const[d2,m2,y2]=b.split(".");return new Date(y1,m1-1,d1)-new Date(y2,m2-1,d2);});
   const lp=LD?LP[LD]:null;
-  const dr=DG&&DG[2026]&&DG[2026].length>0;
-
+  
   if(L)return<div style={{display:"flex",flexDirection:"column",justifyContent:"center",alignItems:"center",minHeight:"100vh",background:"linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#1e40af 100%)",gap:16}}>
 <div style={{width:48,height:48,border:"4px solid rgba(255,255,255,.2)",borderTop:"4px solid #60a5fa",borderRadius:"50%",animation:"spin 1s linear infinite"}}></div>
 <p style={{color:"rgba(255,255,255,.7)",fontSize:14}}>Loading...</p>
@@ -82,7 +78,7 @@ export default function Home(){
 <h1 style={{fontSize:22,fontWeight:"bold",margin:0}}>Apotek Bali Bagas Medika</h1>
 <p style={{fontSize:13,opacity:.7,margin:"4px 0 0"}}>Dashboard Monitoring</p></div>
 <div style={{display:"flex",background:"rgba(255,255,255,.95)",backdropFilter:"blur(10px)",borderBottom:"1px solid #e5e7eb",paddingLeft:16}}>
-{[{k:"p",l:"Penjualan"},{k:"l",l:"LPH"},{k:"d",l:"Diagram"},{k:"f",l:"Faktur"}].map(t=>(
+{[{k:"p",l:"Penjualan"},{k:"l",l:"LPH"},{k:"f",l:"Faktur"}].map(t=>(
 <button key={t.k} onClick={()=>setT(t.k)} style={{padding:"12px 20px",border:"none",background:"transparent",cursor:"pointer",borderBottom:T===t.k?"2px solid #2563eb":"2px solid transparent",color:T===t.k?"#2563eb":"#6b7280",fontWeight:T===t.k?600:400,fontSize:14,outline:"none"}}>{t.l}</button>))}
 </div>
 <div style={{padding:16,maxWidth:1200,margin:"0 auto"}}>
@@ -90,7 +86,6 @@ export default function Home(){
 B24={B24} setB24={setB24} kl24={Object.keys(P24)} p24={p24} tt24={tt24}
 B25={B25} setB25={setB25} kl25={Object.keys(P25)} p25={p25} tt25={tt25}/>}
 {T==="l"&&<LPHUI lds={lds} LD={LD} setLD={setLD} lp={lp}/>}
-{T==="d"&&<DiagramUI dr={dr} DG={DG}/>}
 {T==="f"&&<FakturUI Fkeys={Object.keys(F)} FB={FB} setFB={setFB} fk={fk}/>}
 </div>
 </div>;
@@ -157,4 +152,3 @@ return <div>
 <Tabel title={"Faktur "+FB} data={fk.slice(0,50)} cols={["no","pbf","jml"]} fmt={(k,v)=>k==="jml"?fr(v):v} rowBg={(d)=>d.sb?"#f0fdf4":"#fef2f2"} extraCol={(d)=><td style={{padding:"8px 12px",textAlign:"center"}}><span style={{padding:"2px 10px",borderRadius:999,fontSize:11,fontWeight:500,background:d.sb?"#dcfce7":"#fee2e2",color:d.sb?"#16a34a":"#dc2626"}}>{d.sb?"LUNAS":"BELUM"}</span></td>}/>
 </div>;}
 
-function DiagramUI({dr,DG}){return <div style={{padding:32,textAlign:"center",color:"rgba(255,255,255,.7)",fontSize:14}}>Diagram tidak ditampilkan</div>;}
