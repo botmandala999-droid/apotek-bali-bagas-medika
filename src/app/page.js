@@ -11,12 +11,11 @@ const LU = ["TARGET SHIFT","OMZET","% PENCAPAIN","GAP VS TARGET","CASH","DEBIT M
 const P26M = [{g:"0",l:"Jan"},{g:"1981407338",l:"Feb"},{g:"1445967367",l:"Mar"},{g:"1565950911",l:"Apr"},{g:"2013738206",l:"Mei"},{g:"163552086",l:"Jun"},{g:"1190948522",l:"Jul"}];
 const FM = [{g:"0",l:"Jan"},{g:"914339812",l:"Feb"},{g:"1942627049",l:"Mar"},{g:"85697732",l:"Apr"},{g:"452486501",l:"Mei"}];
 
-function p(v){return parseInt((v||"0").replace(/[Rp\\s,."]/g,""),10)||0;}
+function p(v){return parseInt((v||"0").replace(/[Rp\s,."]/g,""),10)||0;}
 function fr(n){return typeof n==="number"?("Rp "+n.toLocaleString("id-ID")):"-";}
-function kj(n){return typeof n==="number"?("◉ "+n.toLocaleString("id-ID")):"◉ 0";}
 
 export default function Home(){
-  const [L,setL]=useState(true);const [E,setE]=useState("");
+  const [L,setL]=useState(true);const [E,setE]=useState("");const [T,setT]=useState("p");
   const [P26,setP26]=useState([]);const [FT,setFT]=useState(0);const [FK,setFK]=useState(0);
   const [F,setF]=useState([]);const [LP,setLP]=useState({});
 
@@ -47,8 +46,6 @@ export default function Home(){
 <style>{"@keyframes spin{to{transform:rotate(360deg)}}"}</style></div>;
   if(E)return<div style={{padding:32,color:"#dc2626"}}>{E}</div>;
 
-  const lds=Object.keys(LP).sort((a,b)=>{const[d1,m1,y1]=a.split(".");const[d2,m2,y2]=b.split(".");return new Date(y1,m1-1,d1)-new Date(y2,m2-1,d2);});
-
   return<div style={{minHeight:"100vh",background:"linear-gradient(135deg,#0f172a 0%,#1e3a5f 40%,#1e40af 60%,#2563eb 100%)"}}>
 <div id="lp" style={{display:"none"}}></div>
 <div style={{background:"linear-gradient(135deg,#1e3a5f,#1d4ed8)",color:"white",padding:"20px 24px"}}>
@@ -62,11 +59,11 @@ export default function Home(){
 {T==="p"&&<div>
   <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:12,marginBottom:20}}>
     <Kartu label="TOTAL OMZET 2026" v={fr(FT)} c="#f59e0b"/>
-    <Kartu label="TOTAL KUNJUNGAN" v={kj(FK)} c="#3b82f6"/>
+    <Kartu label="TOTAL KUNJUNGAN" v={FK+" kunjungan"} c="#3b82f6"/>
     <Kartu label="RATA OMZET/HARI" v={fr(P26.length>0?Math.round(FT/P26.length):0)} c="#10b981"/>
     <Kartu label="FAKTUR BELUM LUNAS" v={F.filter(d=>!d.sb).length+" faktur"} c="#ef4444"/>
   </div>
-  <Tabel title="Penjualan Harian 2026" data={[...P26].reverse()} cols={["tgl","total","kunjungan"]} fmt={(k,v)=>k==="total"?fr(v):kj(v)}/>
+  <Tabel title="Penjualan Harian 2026" data={[...P26].reverse()} cols={["tgl","total","kunjungan"]} fmt={(k,v)=>k==="total"?fr(v):v+" kali"}/>
 </div>}
 {T==="f"&&<div>
   <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:12,marginBottom:20}}>
@@ -74,7 +71,6 @@ export default function Home(){
     <Kartu label="LUNAS" v={F.filter(d=>d.sb).length+" faktur"} c="#10b981"/>
     <Kartu label="BELUM LUNAS" v={F.filter(d=>!d.sb).length+" faktur"} c="#ef4444"/>
     <Kartu label="NILAI TOTAL" v={fr(F.reduce((s,d)=>s+d.jml,0))} c="#8b5cf6"/>
-    <Kartu label="PIUTANG" v={fr(F.filter(d=>!d.sb).reduce((s,d)=>s+d.jml,0))} c="#dc2626"/>
   </div>
   <Tabel title="Semua Faktur" data={F.slice(0,100)} cols={["bln","no","pbf","jml"]} fmt={(k,v)=>k==="jml"?fr(v):v} rowBg={(d)=>d.sb?"#f0fdf4":"#fef2f2"} extraCol={(d)=><td style={{padding:"8px 12px",textAlign:"center"}}><span style={{padding:"2px 10px",borderRadius:999,fontSize:11,fontWeight:500,background:d.sb?"#dcfce7":"#fee2e2",color:d.sb?"#16a34a":"#dc2626"}}>{d.sb?"LUNAS":"BELUM"}</span></td>}/>
 </div>}
@@ -88,7 +84,7 @@ function Kartu({label,v,color:c}){return <div style={{background:"rgba(255,255,2
 
 function Tabel({title,data,cols,rowBg,fmt,extraCol:xc}){
 const rows=Array.isArray(data)?data:[];
-const ch={tgl:"Tanggal",total:"Omzet",kunjungan:"Kunjungan",bln:"Bulan",no:"Faktur",pbf:"PBF",jml:"Nilai",sb:"Status"};
+const ch={tgl:"Tanggal",total:"Omzet",kunjungan:"Kunjungan",bln:"Bulan",no:"Faktur",pbf:"PBF",jml:"Nilai"};
 return <div style={{background:"rgba(255,255,255,.95)",backdropFilter:"blur(10px)",borderRadius:12,border:"1px solid rgba(255,255,255,.6)",overflow:"hidden",boxShadow:"0 2px 8px rgba(0,0,0,.08)",marginBottom:20}}>
 <div style={{padding:"12px 16px",borderBottom:"1px solid #e5e7eb",fontSize:14,fontWeight:600,color:"#374151"}}>{title}</div>
 <div style={{maxHeight:400,overflow:"auto"}}><table style={{width:"100%",fontSize:12,borderCollapse:"collapse"}}>
