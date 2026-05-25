@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 
 const NL = String.fromCharCode(92,110);
 const DR = new RegExp("^\\d{2}/\\d{2}/\\d{4}$");
-const DN = new RegExp("^\\d+$");
 const S26 = "12ifCX85urqUxt67Ad5xr26ffzGxvGNz5FFZT38oKZM8";
 const FSID = "1f0xEiBz5Mzu79zxks1Ew0lfAdwQu-7VKvKxaUcz3VzU";
 const LSID = "1Pl9uQvDSq4qWVT6MzqWCiZoI4Oga0wMhVu7wFwMoW4I";
@@ -12,27 +11,27 @@ const LU = ["TARGET SHIFT","OMZET","% PENCAPAIN","GAP VS TARGET","CASH","DEBIT M
 const P26M = [{g:"0",l:"Jan"},{g:"1981407338",l:"Feb"},{g:"1445967367",l:"Mar"},{g:"1565950911",l:"Apr"},{g:"2013738206",l:"Mei"},{g:"163552086",l:"Jun"},{g:"1190948522",l:"Jul"}];
 const FM = [{g:"0",l:"Jan"},{g:"914339812",l:"Feb"},{g:"1942627049",l:"Mar"},{g:"85697732",l:"Apr"},{g:"452486501",l:"Mei"}];
 
-function p(v){return parseInt((v||"0").replace(/[Rp\s,."]/g,""),10)||0;}
+function p(v){return parseInt((v||"0").replace(/[Rp\\s,."]/g,""),10)||0;}
 function fr(n){return typeof n==="number"?("Rp "+n.toLocaleString("id-ID")):"-";}
+function kj(n){return typeof n==="number"?("◉ "+n.toLocaleString("id-ID")):"◉ 0";}
 
 export default function Home(){
-  const [L,setL]=useState(true);const [E,setE]=useState("");const [T,setT]=useState("p");
-  const [P26,setP26]=useState({});
-  const [F,setF]=useState({});const [LP,setLP]=useState({});  const [BA,setBA]=useState("");
-  const [FB,setFB]=useState("Jan");const [LD,setLD]=useState("");
+  const [L,setL]=useState(true);const [E,setE]=useState("");
+  const [P26,setP26]=useState([]);const [FT,setFT]=useState(0);const [FK,setFK]=useState(0);
+  const [F,setF]=useState([]);const [LP,setLP]=useState({});
 
   useEffect(()=>{(async()=>{try{
-    const a={};
+    let all=[],tt=0,kk=0;
     for(const m of P26M){try{const r=await fetch("/api/gsheet?url="+encodeURIComponent("https://docs.google.com/spreadsheets/d/"+S26+"/export?format=csv&gid="+m.g));const t=await r.text();const ll=t.split(NL).filter(l=>l.trim());
-    const ps=ll.slice(4).filter(r=>{const c=r.split(",");return c[0]&&DR.test(c[0].replace(/"/g,""));}).map(r=>{const c=r.split(",");return{tgl:c[0].replace(/"/g,""),tt:p(c[9]),kj:p(c[10])};});
-    if(ps.length>0)a[m.l]=ps;}catch(e){}}
-    setP26(a);
-    
-    
-    const sf={};
+    const ps=ll.slice(4).filter(r=>{const c=r.split(",");return c[0]&&DR.test(c[0].replace(/"/g,""));}).map(r=>{const c=r.split(",");return{tgl:c[0].replace(/"/g,""),bln:m.l,total:p(c[9]),kunjungan:p(c[10])};});
+    for(const d of ps){all.push(d);tt+=d.total;kk+=d.kunjungan;}
+    }catch(e){}}
+    all.sort((a,b)=>{const[d1,m1,y1]=a.tgl.split("/");const[d2,m2,y2]=b.tgl.split("/");return new Date(y1,m1-1,d1)-new Date(y2,m2-1,d2);});
+    setP26(all);setFT(tt);setFK(kk);
+    const sf=[];
     for(const m of FM){try{const r=await fetch("/api/gsheet?url="+encodeURIComponent("https://docs.google.com/spreadsheets/d/"+FSID+"/export?format=csv&gid="+m.g));const t=await r.text();const ll=t.split(NL).filter(l=>l.trim());
-    const ps=ll.slice(4).filter(r=>{const c=r.split(",");return c[0]&&DN.test(c[0].replace(/"/g,""));}).map(r=>{const c=r.split(",");return{no:c[0].replace(/"/g,""),pbf:(c[1]||"").replace(/"/g,""),jml:p(c[2]),sb:(c[5]||"").replace(/"/g,"").trim().toUpperCase()==="TRUE"};});
-    if(ps.length>0)sf[m.l]=ps;}catch(e){}}
+    const ps=ll.slice(4).filter(r=>{const c=r.split(",");const v=parseInt((c[0]||"").replace(/"/g,""),10);return v>0;}).map(r=>{const c=r.split(",");return{no:c[0].replace(/"/g,""),pbf:(c[1]||"").replace(/"/g,""),jml:p(c[2]),sb:(c[5]||"").replace(/"/g,"").trim().toUpperCase()==="TRUE",bln:m.l};});
+    for(const d of ps)sf.push(d);}catch(e){}}
     setF(sf);
     const lm={};
     for(const gid of LG){try{const r=await fetch("/api/gsheet?url="+encodeURIComponent("https://docs.google.com/spreadsheets/d/"+LSID+"/export?format=csv&gid="+gid));const t=await r.text();const ll=t.split(NL).filter(l=>l.trim());
@@ -40,59 +39,48 @@ export default function Home(){
     for(const l of ll){const c=l.split(",").map(x=>x.replace(/"/g,"").trim());const u=c[0].toUpperCase().trim();if(LU.some(v=>u===v||u.startsWith(v)))rr.push({u:c[0],p:c[1]||"-",s:c[2]||"-",t:c[3]||"-"});}
     if(rr.length>0)lm[tg]={tg,rr};}catch(e){}}
     setLP(lm);
-            const ka=Object.keys(a);if(ka.length>0)setBA(ka[ka.length-1]);
-            const ds=Object.keys(lm).sort((a,b)=>{const[d1,m1,y1]=a.split(".");const[d2,m2,y2]=b.split(".");return new Date(y1,m1-1,d1)-new Date(y2,m2-1,d2);});
-    if(ds.length>0)setLD(ds[ds.length-1]);
   }catch(e){setE("Err: "+e.message);}setL(false);})();},[]);
 
-  const pj=BA?(P26[BA]||[]):[];const tt26=pj.reduce((s,d)=>s+d.tt,0);
-  const p24=B24?(P24[B24]||[]):[];const tt24=p24.reduce((s,d)=>s+d.tt,0);
-  const p25=B25?(P25[B25]||[]):[];const tt25=p25.reduce((s,d)=>s+d.tt,0);
-  const fk=FB?(F[FB]||[]):[];const lds=Object.keys(LP).sort((a,b)=>{const[d1,m1,y1]=a.split(".");const[d2,m2,y2]=b.split(".");return new Date(y1,m1-1,d1)-new Date(y2,m2-1,d2);});
-  const lp=LD?LP[LD]:null;
-  
   if(L)return<div style={{display:"flex",flexDirection:"column",justifyContent:"center",alignItems:"center",minHeight:"100vh",background:"linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#1e40af 100%)",gap:16}}>
 <div style={{width:48,height:48,border:"4px solid rgba(255,255,255,.2)",borderTop:"4px solid #60a5fa",borderRadius:"50%",animation:"spin 1s linear infinite"}}></div>
-<p style={{color:"rgba(255,255,255,.7)",fontSize:14}}>Loading...</p>
+<p style={{color:"rgba(255,255,255,.7)",fontSize:14}}>Memuat data...</p>
 <style>{"@keyframes spin{to{transform:rotate(360deg)}}"}</style></div>;
   if(E)return<div style={{padding:32,color:"#dc2626"}}>{E}</div>;
 
+  const lds=Object.keys(LP).sort((a,b)=>{const[d1,m1,y1]=a.split(".");const[d2,m2,y2]=b.split(".");return new Date(y1,m1-1,d1)-new Date(y2,m2-1,d2);});
+
   return<div style={{minHeight:"100vh",background:"linear-gradient(135deg,#0f172a 0%,#1e3a5f 40%,#1e40af 60%,#2563eb 100%)"}}>
-<style>{"@media print{body *{visibility:hidden!important}#lp,#lp *{visibility:visible!important}#lp{position:absolute;left:0;top:0;width:100%;padding:8px 12px;font-size:7px;max-width:210mm}@page{margin:6mm 8mm;size:A4 landscape}}"}</style>
+<div id="lp" style={{display:"none"}}></div>
 <div style={{background:"linear-gradient(135deg,#1e3a5f,#1d4ed8)",color:"white",padding:"20px 24px"}}>
 <h1 style={{fontSize:22,fontWeight:"bold",margin:0}}>Apotek Bali Bagas Medika</h1>
-<p style={{fontSize:13,opacity:.7,margin:"4px 0 0"}}>Dashboard Monitoring</p></div>
+<p style={{fontSize:13,opacity:.7,margin:"4px 0 0"}}>Dashboard Monitoring 2026</p></div>
 <div style={{display:"flex",background:"rgba(255,255,255,.95)",backdropFilter:"blur(10px)",borderBottom:"1px solid #e5e7eb",paddingLeft:16}}>
-{[{k:"p",l:"Penjualan"},{k:"l",l:"LPH"},{k:"f",l:"Faktur"}].map(t=>(
+{[{k:"p",l:"Penjualan"},{k:"f",l:"Faktur"}].map(t=>(
 <button key={t.k} onClick={()=>setT(t.k)} style={{padding:"12px 20px",border:"none",background:"transparent",cursor:"pointer",borderBottom:T===t.k?"2px solid #2563eb":"2px solid transparent",color:T===t.k?"#2563eb":"#6b7280",fontWeight:T===t.k?600:400,fontSize:14,outline:"none"}}>{t.l}</button>))}
 </div>
 <div style={{padding:16,maxWidth:1200,margin:"0 auto"}}>
-{T==="p"&&<PenjualanUI BA={BA} setBA={setBA} kl26={Object.keys(P26)} pj={pj} tt26={tt26}
-/>}
-{T==="l"&&<LPHUI lds={lds} LD={LD} setLD={setLD} lp={lp}/>}
-{T==="f"&&<FakturUI Fkeys={Object.keys(F)} FB={FB} setFB={setFB} fk={fk}/>}
+{T==="p"&&<div>
+  <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:12,marginBottom:20}}>
+    <Kartu label="TOTAL OMZET 2026" v={fr(FT)} c="#f59e0b"/>
+    <Kartu label="TOTAL KUNJUNGAN" v={kj(FK)} c="#3b82f6"/>
+    <Kartu label="RATA OMZET/HARI" v={fr(P26.length>0?Math.round(FT/P26.length):0)} c="#10b981"/>
+    <Kartu label="FAKTUR BELUM LUNAS" v={F.filter(d=>!d.sb).length+" faktur"} c="#ef4444"/>
+  </div>
+  <Tabel title="Penjualan Harian 2026" data={[...P26].reverse()} cols={["tgl","total","kunjungan"]} fmt={(k,v)=>k==="total"?fr(v):kj(v)}/>
+</div>}
+{T==="f"&&<div>
+  <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:12,marginBottom:20}}>
+    <Kartu label="TOTAL FAKTUR" v={F.length+" faktur"} c="#3b82f6"/>
+    <Kartu label="LUNAS" v={F.filter(d=>d.sb).length+" faktur"} c="#10b981"/>
+    <Kartu label="BELUM LUNAS" v={F.filter(d=>!d.sb).length+" faktur"} c="#ef4444"/>
+    <Kartu label="NILAI TOTAL" v={fr(F.reduce((s,d)=>s+d.jml,0))} c="#8b5cf6"/>
+    <Kartu label="PIUTANG" v={fr(F.filter(d=>!d.sb).reduce((s,d)=>s+d.jml,0))} c="#dc2626"/>
+  </div>
+  <Tabel title="Semua Faktur" data={F.slice(0,100)} cols={["bln","no","pbf","jml"]} fmt={(k,v)=>k==="jml"?fr(v):v} rowBg={(d)=>d.sb?"#f0fdf4":"#fef2f2"} extraCol={(d)=><td style={{padding:"8px 12px",textAlign:"center"}}><span style={{padding:"2px 10px",borderRadius:999,fontSize:11,fontWeight:500,background:d.sb?"#dcfce7":"#fee2e2",color:d.sb?"#16a34a":"#dc2626"}}>{d.sb?"LUNAS":"BELUM"}</span></td>}/>
+</div>}
 </div>
 </div>;
 }
-
-function PenjualanUI({BA,setBA,kl26,pj,tt26,}){
-return <div>
-<div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap",alignItems:"center"}}>
-<span style={{color:"rgba(255,255,255,.7)",fontSize:12,fontWeight:500}}>2026:</span>
-<select value={BA} onChange={e=>setBA(e.target.value)} style={{padding:"6px 10px",borderRadius:6,border:"1px solid #d1d5db",fontSize:13,background:"white"}}>
-{kl26.map(b=><option key={b} value={b}>{b}</option>)}</select>
-<span style={{color:"rgba(255,255,255,.7)",fontSize:12,fontWeight:500}}>2025:</span>
-<select value={B25} onChange={e=>setB25(e.target.value)} style={{padding:"6px 10px",borderRadius:6,border:"1px solid #d1d5db",fontSize:13,background:"white"}}>
-{kl25.map(b=><option key={b} value={b}>{b}</option>)}</select>
-<span style={{color:"rgba(255,255,255,.7)",fontSize:12,fontWeight:500}}>2024:</span>
-<select value={B24} onChange={e=>setB24(e.target.value)} style={{padding:"6px 10px",borderRadius:6,border:"1px solid #d1d5db",fontSize:13,background:"white"}}>
-{kl24.map(b=><option key={b} value={b}>{b}</option>)}</select>
-</div>
-<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))",gap:12,marginBottom:20}}>
-<Kartu label={"Omzet 2026"} v={fr(tt26)} c="#f59e0b"/>
-</div>
-{kl26.length>0&&pj.length>0&&<Tabel title={"Penjualan Harian 2026 - "+BA} data={[...pj].reverse()} cols={["tgl","tt","kj"]} fmt={(k,v)=>k==="tt"?fr(v):v}/>}
-</div>;}
 
 function Kartu({label,v,color:c}){return <div style={{background:"rgba(255,255,255,.95)",backdropFilter:"blur(10px)",borderRadius:12,padding:"14px 16px",boxShadow:"0 2px 8px rgba(0,0,0,.08)",border:"1px solid rgba(255,255,255,.6)"}}>
 <p style={{fontSize:11,color:"#9ca3af",margin:"0 0 4px",textTransform:"uppercase",letterSpacing:.5}}>{label}</p>
@@ -100,37 +88,11 @@ function Kartu({label,v,color:c}){return <div style={{background:"rgba(255,255,2
 
 function Tabel({title,data,cols,rowBg,fmt,extraCol:xc}){
 const rows=Array.isArray(data)?data:[];
+const ch={tgl:"Tanggal",total:"Omzet",kunjungan:"Kunjungan",bln:"Bulan",no:"Faktur",pbf:"PBF",jml:"Nilai",sb:"Status"};
 return <div style={{background:"rgba(255,255,255,.95)",backdropFilter:"blur(10px)",borderRadius:12,border:"1px solid rgba(255,255,255,.6)",overflow:"hidden",boxShadow:"0 2px 8px rgba(0,0,0,.08)",marginBottom:20}}>
 <div style={{padding:"12px 16px",borderBottom:"1px solid #e5e7eb",fontSize:14,fontWeight:600,color:"#374151"}}>{title}</div>
 <div style={{maxHeight:400,overflow:"auto"}}><table style={{width:"100%",fontSize:12,borderCollapse:"collapse"}}>
 <thead style={{background:"#f1f5f9",position:"sticky",top:0,boxShadow:"0 1px 3px rgba(0,0,0,.08)"}}>
-<tr>{[{k:"tgl",l:"Tanggal"},{k:"tt",l:"Total"},{k:"kj",l:"Kunjungan"}].filter(c=>cols.includes(c.k)).map(c=>(
-<th key={c.k} style={{padding:"8px 12px",borderBottom:"1px solid #e5e7eb",fontSize:11,color:"#475569",textAlign:c.k==="tgl"?"left":"right"}}>{c.l}</th>))}{xc&&<th style={{padding:"8px 12px",borderBottom:"1px solid #e5e7eb",fontSize:11,color:"#475569",textAlign:"center"}}>Status</th>}</tr></thead>
+<tr>{cols.map(c=>(<th key={c} style={{padding:"8px 12px",borderBottom:"1px solid #e5e7eb",fontSize:11,color:"#475569",textAlign:c==="tgl"?"left":"right"}}>{ch[c]||c}</th>))}{xc&&<th style={{padding:"8px 12px",borderBottom:"1px solid #e5e7eb",fontSize:11,color:"#475569",textAlign:"center"}}>Status</th>}</tr></thead>
 <tbody>{rows.map((d,i)=>{const bg=rowBg?rowBg(d):i%2===0?"white":"#f8fafc";return <tr key={i} style={{background}}>
-{cols.map(c=><td key={c} style={{padding:"5px 8px",borderBottom:"1px solid #f1f5f9",fontSize:11,fontWeight:c==="tt"?600:400,color:c==="tt"?"#2563eb":"#374151",textAlign:c==="tgl"?"left":"right"}}>{fmt?fmt(c,d[c]):d[c]}</td>)}{xc&&xc(d)}</tr>;})}</tbody></table></div></div>;}
-
-function LPHUI({lds,LD,setLD,lp}){return <div>
-{lds.length>0&&<div style={{marginBottom:16}}><label style={{fontSize:12,color:"rgba(255,255,255,.7)",display:"block",marginBottom:6}}>Pilih Tanggal:</label>
-<select value={LD} onChange={e=>setLD(e.target.value)} style={{padding:"10px 16px",borderRadius:8,border:"1px solid #d1d5db",fontSize:14,maxWidth:300,background:"white",cursor:"pointer"}}>
-{lds.map(d=><option key={d} value={d}>{d}</option>)}</select></div>}
-{lp&&<div><div style={{textAlign:"right",marginBottom:12}}><button onClick={()=>window.print()} style={{background:"linear-gradient(135deg,#2563eb,#1d4ed8)",color:"white",border:"none",padding:"8px 20px",borderRadius:8,cursor:"pointer",fontSize:13,fontWeight:500}}>Cetak</button></div>
-<div id="lp" style={{background:"white",padding:"10px",borderRadius:8}}>
-<div style={{textAlign:"center",marginBottom:6}}><h2 style={{fontSize:12,fontWeight:"bold",margin:0}}>LAPORAN PENJUALAN HARIAN (LPH)</h2>
-<p style={{fontSize:9,margin:"1px 0"}}>APOTEK BALI BAGAS MEDIKA (BBM)</p><p style={{fontSize:9,fontWeight:"bold",margin:"3px 0 0"}}>TANGGAL : {lp.tg}</p></div>
-<table style={{width:"100%",fontSize:8,borderCollapse:"collapse",border:"1px solid #000"}}>
-<thead><tr style={{background:"#e5e7eb"}}><th style={{border:"1px solid #000",padding:"2px 4px"}}>URAIAN</th><th style={{border:"1px solid #000",padding:"2px 4px"}}>PAGI</th><th style={{border:"1px solid #000",padding:"2px 4px"}}>SIANG</th><th style={{border:"1px solid #000",padding:"2px 4px"}}>TOTAL</th></tr></thead>
-<tbody>{lp.rr.map((r,i)=>(<tr key={i} style={{background:i%2===0?"white":"#f9fafb"}}><td style={{border:"1px solid #000",padding:"2px 4px"}}>{r.u}</td><td style={{border:"1px solid #000",padding:"2px 4px",textAlign:"right"}}>{r.p}</td><td style={{border:"1px solid #000",padding:"2px 4px",textAlign:"right"}}>{r.s}</td><td style={{border:"1px solid #000",padding:"2px 4px",textAlign:"right"}}>{r.t}</td></tr>))}</tbody></table></div>
-</div>}
-{!lp&&<div style={{padding:32,textAlign:"center",color:"rgba(255,255,255,.5)"}}>Pilih tanggal</div>}
-</div>;}
-
-function FakturUI({Fkeys,FB,setFB,fk}){
-const bs=(a,k)=>({padding:"6px 14px",borderRadius:20,border:"1px solid",cursor:"pointer",fontSize:13,background:a===k?"#3b82f6":"white",color:a===k?"white":"#374151",borderColor:a===k?"#3b82f6":"#d1d5db"});
-return <div>
-{Fkeys.length>0&&<div style={{display:"flex",gap:6,marginBottom:16,flexWrap:"wrap"}}>{Fkeys.map(b=><button key={b} onClick={()=>setFB(b)} style={bs(FB,b)}>{b}</button>)}</div>}
-<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))",gap:12,marginBottom:20}}>
-<Kartu label={"Faktur "+FB} v={fk.length+" faktur"} c="#3b82f6"/><Kartu label="Lunas" v={fk.filter(d=>d.sb).length+" faktur"} c="#10b981"/><Kartu label="Belum" v={fk.filter(d=>!d.sb).length+" faktur"} c="#ef4444"/><Kartu label="Nilai" v={fr(fk.reduce((s,d)=>s+d.jml,0))} c="#8b5cf6"/>
-</div>
-<Tabel title={"Faktur "+FB} data={fk.slice(0,50)} cols={["no","pbf","jml"]} fmt={(k,v)=>k==="jml"?fr(v):v} rowBg={(d)=>d.sb?"#f0fdf4":"#fef2f2"} extraCol={(d)=><td style={{padding:"8px 12px",textAlign:"center"}}><span style={{padding:"2px 10px",borderRadius:999,fontSize:11,fontWeight:500,background:d.sb?"#dcfce7":"#fee2e2",color:d.sb?"#16a34a":"#dc2626"}}>{d.sb?"LUNAS":"BELUM"}</span></td>}/>
-</div>;}
-
+{cols.map(c=><td key={c} style={{padding:"5px 8px",borderBottom:"1px solid #f1f5f9",fontSize:11,fontWeight:c==="total"?600:400,color:c==="total"?"#2563eb":c==="kunjungan"?"#059669":"#374151",textAlign:c==="tgl"||c==="pbf"?"left":"right"}}>{fmt?fmt(c,d[c]):d[c]}</td>)}{xc&&xc(d)}</tr>;})}</tbody></table></div></div>;}
